@@ -2,9 +2,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
+
+
 
 void Shell::printPrompt() {
     std::cout << "$ ";
@@ -48,6 +51,18 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
             cout << tokens[i];
         }
         cout << endl;
+        return true;
+    }
+    if (tokens[0] == "type") {
+        for (int i = 1; i < tokens.size(); i++) {
+            if (shellCommands.find(tokens[i]) != shellCommands.end()) {
+                cout << tokens[i] << " is a shell command" << endl;
+            }
+            else {
+                cout << tokens[i] << ": command not found" << endl;
+            }
+        }
+
         return true;
     }
     else {
