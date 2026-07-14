@@ -33,12 +33,19 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
     // returns true-> to keep executing the shell,
     // returns false -> to terminate the shell
 
+    if (tokens.empty()) {
+        return true;
+    }
+
     if (tokens[0] == "exit") {
         return false;
     }
     if (tokens[0] == "echo") {
         for (int i = 1; i < tokens.size(); i++) {
-            cout << tokens[i] << ' ';
+            if (i > 1) {
+                cout << ' ';
+            }
+            cout << tokens[i];
         }
         cout << endl;
         return true;
