@@ -1,7 +1,18 @@
 # General things
-```
-- convert string to char* by using myStr.c_str();
-```
+- `#include` directive is just copy-paste for .h and .cpp
+- file.h is header file used for declaration and saying that hey here this functions are declared and file.cpp contains actual implementation 
+- we must only include header files in our any .cpp file as if we do #include file.cpp then our code for file.cpp would be copied and pasted in our current main.cpp file, and when we build it with cmake the code of file.cpp gets compiles twice.
+- solution? just use header files for declaration and inclusion 
+main.cpp , file.cpp  -----+----> Linker ----> Executable
+
+- now if main.cpp contains file.h then we just copy function declarations not there implementations thus avoid multiple compiled copies of same code (multiple copies of same compiled code can cause error) and freely use functions in file.cpp without including it directly in our main.cpp
+
+
+- convert string to char* by using `myStr.c_str()`;
+
+
+
+
 
 # Learnings Stages wise
 

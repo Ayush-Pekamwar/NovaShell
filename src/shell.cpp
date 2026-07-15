@@ -1,5 +1,5 @@
 #include "shell.h"
-#include "utils.cpp"
+#include "utils.h"
 
 #include <cstdlib>
 #include <filesystem>
