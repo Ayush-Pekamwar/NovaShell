@@ -1,34 +1,43 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/6539772e-1867-4bc9-9ce3-b1cd27bcbae3)](https://app.codecrafters.io/users/Ayush-Pekamwar?r=2qF)
+# NovaShell
+### (Project is under active development)
+NovaShell is a Unix-style shell written in C++.  
+It is built step by step, starting with the
+basics of reading commands, handling builtins, finding executables on `PATH`,
+and running external programs.
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+## Current Features
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+- Interactive prompt loop
+- Basic whitespace tokenization
+- Builtins: `exit`, `echo`, and `type`
+- Executable lookup `(ex: ls, grep, curl, git, ssh, etc)` using the `PATH` environment variable
+- External command execution with `fork()` and `execv()`
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## Build and Run
 
-# Passing the first stage
-
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
-
-```sh
-codecrafters submit
+```bash
+cmake -B build -S .
+cmake --build build
+./build/shell
 ```
 
-Time to move on to the next stage!
+## In Progress
 
-# Stage 2 & beyond
+The shell is being expanded with support for navigation, quoting, redirection,
+command and filename completion, programmable completion, background jobs,
+pipelines, command history, history persistence, and parameter expansion.
 
-Note: This section is for stages 2 and beyond.
+Planned builtins and behavior include `pwd`, `cd`, `jobs`, `history`,
+`declare`, richer completion handling, quoted executables, stdout/stderr
+redirection, multi-command pipelines, and shell variable expansion.
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+## Current Project Structure
+
+```text
+src/
+  main.cpp    # Program entry point
+  shell.h     # Shell class interface
+  shell.cpp   # Shell loop, builtins, command dispatch
+  utils.h     # Utility declarations
+  utils.cpp   # Utility implementations
+```
