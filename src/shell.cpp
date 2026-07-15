@@ -1,11 +1,33 @@
 #include "shell.h"
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 #include <unordered_set>
 #include <vector>
 
+#ifdef _WIN32
+const char PATH_DELIM = ';';
+#else
+const char PATH_DELIM = ':';
+#endif
+
+namespace fs = std::filesystem;
 using namespace std;
+
+// organizing from higher level to lower level
+void Shell::run() {
+    while (true) {
+        printPrompt();
+        std::string input = readInput();
+        std::vector<std::string> tokens = tokenize(input);
+        if (!executeCommand(tokens, input)) {
+            return;
+        }
+    }
+}
 
 void Shell::printPrompt() {
     std::cout << "$ ";
@@ -17,7 +39,7 @@ std::string Shell::readInput() {
     return input;
 }
 
-std::vector<std::string> tokenize(const std::string &input) {
+std::vector<std::string> Shell::tokenize(const std::string &input) {
     std::istringstream iss(input);
     std::vector<std::string> tokens;
     std::string token;
@@ -42,40 +64,77 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
         return false;
     }
     if (tokens[0] == "echo") {
-        for (int i = 1; i < tokens.size(); i++) {
-            if (i > 1) {
-                cout << ' ';
-            }
-            cout << tokens[i];
-        }
-        cout << endl;
-        return true;
+        return executeEcho(tokens);
     }
     if (tokens[0] == "type") {
-        for (int i = 1; i < tokens.size(); i++) {
-            if (shellCommands.find(tokens[i]) != shellCommands.end()) {
-                cout << tokens[i] << " is a shell builtin" << endl;
+        return executeType(tokens);
+    }
+    else {
+        cout << input << ": not found" << endl;
+        return true;
+    }
+}
+
+bool Shell::executeEcho(const std::vector<std::string> &tokens) {
+    for (int i = 1; i < tokens.size(); i++) {
+        if (i > 1) {
+            cout << ' ';
+        }
+        cout << tokens[i];
+    }
+    cout << endl;
+    return true;
+}
+
+bool Shell::executeType(const std::vector<std::string> &tokens) {
+    for (int i = 1; i < tokens.size(); i++) {
+        if (shellCommands.find(tokens[i]) != shellCommands.end()) {
+            cout << tokens[i] << " is a shell builtin" << endl;
+        }
+        else {
+            string path = findExecutable(tokens[i]);
+            if (!path.empty()) {
+                cout << tokens[i] << " is " << path << endl;
             }
             else {
                 cout << tokens[i] << ": not found" << endl;
             }
         }
+    }
 
-        return true;
-    }
-    else {
-        cout << input << ": command not found" << endl;
-        return true;
-    }
+    return true;
 }
 
-void Shell::run() {
-    while (true) {
-        printPrompt();
-        std::string input = readInput();
-        std::vector<std::string> tokens = tokenize(input);
-        if (!executeCommand(tokens, input)) {
-            return;
+string Shell::findExecutable(const string &command) {
+    const char *path_env = std::getenv("PATH");
+    if (path_env == nullptr) {
+        return "";
+    }
+
+    vector<string> paths = splitPath(path_env);
+    // cout << paths.size() << endl;
+    for (auto &directory : paths) {
+        fs::path executablePath = fs::path(directory) / command;
+        if (fs::is_regular_file(executablePath)) {
+            if (access(executablePath.c_str(), X_OK) == 0) {
+                return executablePath.string();
+            }
         }
     }
+
+    return "";
+}
+
+std::vector<std::string> Shell::splitPath(const char *path_env) {
+    std::istringstream iss(path_env);
+    vector<string> tokens;
+    string token;
+
+    while (getline(iss, token, PATH_DELIM)) {
+        if (!token.empty()) {
+            tokens.push_back(token);
+        }
+    }
+
+    return tokens;
 }
