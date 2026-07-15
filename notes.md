@@ -33,3 +33,9 @@ and it doesnt care about what it returns (2nd arg nullptr)
 - for implementation we had to get char*[] from tokens using a util function
 - as child process (new exe) is done working we resume parent which was waiting and continue our shell
 
+
+# Navigations
+
+## pwd builtin
+- `executePwd()` function implemented
+- simple implementation just used filesystem library in c++ to get current working directory and printed it

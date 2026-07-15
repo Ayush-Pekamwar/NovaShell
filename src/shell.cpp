@@ -17,10 +17,13 @@ const char PATH_DELIM = ';';
 const char PATH_DELIM = ':';
 #endif
 
+// Namespaces
 namespace fs = std::filesystem;
 using namespace std;
 
 // organizing from higher level to lower level
+
+// REPL loop
 void Shell::run() {
     while (true) {
         printPrompt();
@@ -32,28 +35,7 @@ void Shell::run() {
     }
 }
 
-void Shell::printPrompt() {
-    std::cout << "$ ";
-}
-
-std::string Shell::readInput() {
-    std::string input;
-    std::getline(std::cin, input);
-    return input;
-}
-
-std::vector<std::string> Shell::tokenize(const std::string &input) {
-    std::istringstream iss(input);
-    std::vector<std::string> tokens;
-    std::string token;
-
-    while (iss >> token) {
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
+// main dispatch
 bool Shell::dispatch(const std::vector<std::string> &tokens,
                      const std::string &input) {
     // returns true-> to keep executing the shell,
@@ -64,6 +46,7 @@ bool Shell::dispatch(const std::vector<std::string> &tokens,
     }
 
     if (tokens[0] == "exit") {
+        // terminate the shell
         return false;
     }
     if (tokens[0] == "echo") {
@@ -72,16 +55,30 @@ bool Shell::dispatch(const std::vector<std::string> &tokens,
     if (tokens[0] == "type") {
         return executeType(tokens);
     }
+    if (tokens[0] == "pwd") {
+        return executePwd();
+    }
 
-    string executablePath = findExecutable(tokens[0]);
+    std::string executablePath = findExecutable(tokens[0]);
     if (!executablePath.empty()) {
-        executeExternalCommand(executablePath, tokens);
-        return true;
+        return executeExternalCommand(executablePath, tokens);
     }
     else {
         cout << input << ": not found" << endl;
         return true;
     }
+}
+
+// command functions
+
+bool Shell::executePwd() {
+    try {
+        fs::path cwd = fs::current_path();
+        cout << cwd.string() << endl;
+    } catch (const fs::filesystem_error &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+    return true;
 }
 
 bool Shell::executeExternalCommand(const std::string &executablePath,
@@ -128,6 +125,29 @@ bool Shell::executeType(const std::vector<std::string> &tokens) {
     }
 
     return true;
+}
+
+// Helper Functions
+void Shell::printPrompt() {
+    std::cout << "$ ";
+}
+
+std::string Shell::readInput() {
+    std::string input;
+    std::getline(std::cin, input);
+    return input;
+}
+
+std::vector<std::string> Shell::tokenize(const std::string &input) {
+    std::istringstream iss(input);
+    std::vector<std::string> tokens;
+    std::string token;
+
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+
+    return tokens;
 }
 
 string Shell::findExecutable(const string &command) {

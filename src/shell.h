@@ -8,13 +8,14 @@ class Shell {
     void run();
 
   private:
-    std::unordered_set<std::string> shellCommands{"echo", "exit", "type"};
+    std::unordered_set<std::string> shellCommands{"echo", "pwd", "exit", "type"};
     bool dispatch(const std::vector<std::string> &tokens,
                   const std::string &input);
 
     // execute specific command
     bool executeEcho(const std::vector<std::string> &tokens);
     bool executeType(const std::vector<std::string> &tokens);
+    bool executePwd();
     bool executeExternalCommand(const std::string &executablePath,
                                 const std::vector<std::string> &tokens);
 
