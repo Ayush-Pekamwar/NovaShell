@@ -7,8 +7,6 @@
 
 using namespace std;
 
-
-
 void Shell::printPrompt() {
     std::cout << "$ ";
 }
@@ -56,7 +54,7 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
     if (tokens[0] == "type") {
         for (int i = 1; i < tokens.size(); i++) {
             if (shellCommands.find(tokens[i]) != shellCommands.end()) {
-                cout << tokens[i] << " is a shell command" << endl;
+                cout << tokens[i] << " is a shell builtin" << endl;
             }
             else {
                 cout << tokens[i] << ": command not found" << endl;
