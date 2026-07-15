@@ -1,9 +1,12 @@
 #include "shell.h"
+#include "utils.cpp"
+
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <unordered_set>
 #include <vector>
@@ -23,7 +26,7 @@ void Shell::run() {
         printPrompt();
         std::string input = readInput();
         std::vector<std::string> tokens = tokenize(input);
-        if (!executeCommand(tokens, input)) {
+        if (!dispatch(tokens, input)) {
             return;
         }
     }
@@ -51,8 +54,8 @@ std::vector<std::string> Shell::tokenize(const std::string &input) {
     return tokens;
 }
 
-bool Shell::executeCommand(const std::vector<std::string> &tokens,
-                           const std::string &input) {
+bool Shell::dispatch(const std::vector<std::string> &tokens,
+                     const std::string &input) {
     // returns true-> to keep executing the shell,
     // returns false -> to terminate the shell
 
@@ -69,10 +72,32 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
     if (tokens[0] == "type") {
         return executeType(tokens);
     }
+
+    string executablePath = findExecutable(tokens[0]);
+    if (!executablePath.empty()) {
+        executeExternalCommand(executablePath, tokens);
+        return true;
+    }
     else {
         cout << input << ": not found" << endl;
         return true;
     }
+}
+
+bool Shell::executeExternalCommand(const std::string &executablePath,
+                                   const std::vector<std::string> &tokens) {
+    pid_t pid = fork(); // returns pid of new process
+    if (pid == 0) {
+        // child process
+        vector<char *> args = convertToCArgs(tokens);
+        execv(executablePath.c_str(), args.data());
+    }
+    else {
+        // parent process
+        waitpid(pid, nullptr, 0);
+    }
+
+    return true;
 }
 
 bool Shell::executeEcho(const std::vector<std::string> &tokens) {
@@ -112,7 +137,7 @@ string Shell::findExecutable(const string &command) {
     }
 
     vector<string> paths = splitPath(path_env);
-    // cout << paths.size() << endl;
+
     for (auto &directory : paths) {
         fs::path executablePath = fs::path(directory) / command;
         if (fs::is_regular_file(executablePath)) {
