@@ -57,7 +57,7 @@ bool Shell::executeCommand(const std::vector<std::string> &tokens,
                 cout << tokens[i] << " is a shell builtin" << endl;
             }
             else {
-                cout << tokens[i] << ": command not found" << endl;
+                cout << tokens[i] << ": not found" << endl;
             }
         }
 
