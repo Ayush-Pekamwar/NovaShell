@@ -12,8 +12,6 @@ main.cpp , file.cpp  -----+----> Linker ----> Executable
 
 
 
-
-
 # Learnings Stages wise
 
 # Run executable stage
