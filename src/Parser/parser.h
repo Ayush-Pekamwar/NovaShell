@@ -3,4 +3,4 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> tokenize(const std::string &input);
+std::vector<std::string> parser(const std::string &input);

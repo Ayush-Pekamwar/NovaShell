@@ -16,7 +16,7 @@ void Shell::run() {
     while (true) {
         printPrompt();
         std::string input = readInput();
-        std::vector<std::string> tokens = tokenize(input);
+        std::vector<std::string> tokens = parser(input);
         if (!dispatch(tokens, input)) {
             return;
         }
