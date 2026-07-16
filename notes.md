@@ -39,3 +39,7 @@ and it doesnt care about what it returns (2nd arg nullptr)
 ## pwd builtin
 - `executePwd()` function implemented
 - simple implementation just used filesystem library in c++ to get current working directory and printed it
+
+## cd builtin
+- `chdir(newPath.c_str())` already handles both absolute and relative paths, so i just need to check if the path exists or not using file systems lib functions ie. exists() and is_directory()
+- just for `~` alias for HOME directory, we just replace `~` by home directory path extracted from HOME env variable and then pass the new target string path to same function

@@ -132,13 +132,29 @@ bool Shell::executePwd() {
 }
 
 bool Shell::executeCd(const std::string &newPath) {
-    if (fs::exists(newPath) && fs::is_directory(newPath)) {
-        if (chdir(newPath.c_str()) != 0) {
+    if (newPath.empty())
+        return true;
+
+    const char *HOME = std::getenv("HOME");
+    std::string HOME_str(HOME);
+    std::string target;
+
+    // Home directory alias ~
+    if (newPath[0] == '~') {
+        target = HOME_str;
+        target += newPath.substr(1);
+    }
+    else {
+        target = newPath;
+    }
+
+    if (fs::exists(target) && fs::is_directory(target)) {
+        if (chdir(target.c_str()) != 0) {
             cout << "internal error cannot change the directory" << endl;
         }
     }
     else {
-        cout << "cd: " << newPath << ": No such file or directory" << endl;
+        cout << "cd: " << target << ": No such file or directory" << endl;
     }
 
     return true;
