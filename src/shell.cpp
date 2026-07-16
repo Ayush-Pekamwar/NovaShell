@@ -138,7 +138,7 @@ bool Shell::executeCd(const std::string &newPath) {
         }
     }
     else {
-        cout << "cd: " << newPath << ": No such file or directory";
+        cout << "cd: " << newPath << ": No such file or directory" << endl;
     }
 
     return true;
