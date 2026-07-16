@@ -1,4 +1,5 @@
 #include "../Utils/path.h"
+#include "builtins.h"
 
 #include <cstdlib>
 #include <filesystem>
@@ -22,6 +23,39 @@ using namespace std;
 
 // built-in command functions
 std::unordered_set<std::string> shellCommands{"echo", "pwd", "exit", "type","cd"};
+
+bool isBuiltin(const std::string& command){
+    if (shellCommands.find(command) != shellCommands.end()){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool executeBuiltin(const std::vector<std::string>& tokens){
+    if(tokens[0] == "exit"){
+        return false;
+    }
+    if (tokens[0] == "echo") {
+        return executeEcho(tokens);
+    }
+    if (tokens[0] == "type") {
+        return executeType(tokens);
+    }
+    if (tokens[0] == "pwd") {
+        return executePwd();
+    }
+    if (tokens[0] == "cd") {
+        if (tokens.size() > 1)
+            executeCd(tokens[1]);
+        return true;
+    }
+
+    return true;
+}
+
+
 
 bool executeEcho(const std::vector<std::string> &tokens) {
     for (int i = 1; i < tokens.size(); i++) {

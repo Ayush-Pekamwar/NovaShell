@@ -33,33 +33,21 @@ bool Shell::dispatch(const std::vector<std::string> &tokens,
         return true;
     }
 
-    if (tokens[0] == "exit") {
-        // terminate the shell
-        return false;
-    }
-    if (tokens[0] == "echo") {
-        return executeEcho(tokens);
-    }
-    if (tokens[0] == "type") {
-        return executeType(tokens);
-    }
-    if (tokens[0] == "pwd") {
-        return executePwd();
-    }
-    if (tokens[0] == "cd") {
-        if (tokens.size() > 1)
-            executeCd(tokens[1]);
-        return true;
-    }
+    // if command is built-in shell command we would pass it to 
+    // executeBuiltin() which would further call appropriate function
+    if (isBuiltin(tokens[0])){
+        return executeBuiltin(tokens);
+    } 
 
+    // checking if current command is executable external command or not
     std::string executablePath = findExecutable(tokens[0]);
     if (!executablePath.empty()) {
         return executeExternalCommand(executablePath, tokens);
     }
-    else {
-        std::cout << input << ": not found" << std::endl;
-        return true;
-    }
+
+    // if neither condition satifies we can say command not found
+    std::cout << input << ": not found\n";
+    return true;
 }
 
 // Helper Functions
