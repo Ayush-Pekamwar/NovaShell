@@ -58,6 +58,11 @@ bool Shell::dispatch(const std::vector<std::string> &tokens,
     if (tokens[0] == "pwd") {
         return executePwd();
     }
+    if (tokens[0] == "cd") {
+        if (tokens.size() > 1)
+            executeCd(tokens[1]);
+        return true;
+    }
 
     std::string executablePath = findExecutable(tokens[0]);
     if (!executablePath.empty()) {
@@ -70,17 +75,6 @@ bool Shell::dispatch(const std::vector<std::string> &tokens,
 }
 
 // command functions
-
-bool Shell::executePwd() {
-    try {
-        fs::path cwd = fs::current_path();
-        cout << cwd.string() << endl;
-    } catch (const fs::filesystem_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
-    return true;
-}
-
 bool Shell::executeExternalCommand(const std::string &executablePath,
                                    const std::vector<std::string> &tokens) {
     pid_t pid = fork(); // returns pid of new process
@@ -122,6 +116,29 @@ bool Shell::executeType(const std::vector<std::string> &tokens) {
                 cout << tokens[i] << ": not found" << endl;
             }
         }
+    }
+
+    return true;
+}
+
+bool Shell::executePwd() {
+    try {
+        fs::path cwd = fs::current_path();
+        cout << cwd.string() << endl;
+    } catch (const fs::filesystem_error &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+    return true;
+}
+
+bool Shell::executeCd(const std::string &newPath) {
+    if (fs::exists(newPath) && fs::is_directory(newPath)) {
+        if (chdir(newPath.c_str()) != 0) {
+            cout << "internal error cannot change the directory" << endl;
+        }
+    }
+    else {
+        cout << "cd: " << newPath << ": No such file or directory";
     }
 
     return true;
