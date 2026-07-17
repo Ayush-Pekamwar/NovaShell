@@ -13,8 +13,19 @@ std::vector<std::string> parser(const std::string &input) {
     std::string curToken;
     bool isSingleQuote = false;
     bool isDoubleQuote = false;
+    bool isBackSlash = false;
 
     for(const char& c : input){
+        // c is backslash and outside quotes then we can take next char as it is
+        if(c=='\\' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
+            isBackSlash=true;
+            continue;
+        }
+        if(isBackSlash == true){
+            curToken += c;
+            isBackSlash = false;
+            continue;
+        }
         if(c=='\"' && !isSingleQuote){
             isDoubleQuote^=1;
             continue;
@@ -24,7 +35,6 @@ std::vector<std::string> parser(const std::string &input) {
             isSingleQuote ^= 1;
             continue;
         }
-
         if(c == ' ' && !isSingleQuote && !isDoubleQuote){
             if(!curToken.empty()) tokens.push_back(curToken);
             curToken.clear();
