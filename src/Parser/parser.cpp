@@ -22,7 +22,7 @@ std::vector<std::string> parser(const std::string &input) {
             continue;
         }
         // c is backslash and outside quotes then we can take next char as it is
-        if(c=='\\' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
+        if(c=='\\' && !isSingleQuote && !isBackSlash){
             isBackSlash=true;
             continue;
         }
@@ -35,7 +35,7 @@ std::vector<std::string> parser(const std::string &input) {
             isSingleQuote ^= 1;
             continue;
         }
-        if(c == ' ' && !isSingleQuote && !isDoubleQuote){
+        if(c == ' ' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
             if(!curToken.empty()) tokens.push_back(curToken);
             curToken.clear();
         }
