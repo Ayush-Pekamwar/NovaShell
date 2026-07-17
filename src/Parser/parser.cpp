@@ -16,14 +16,14 @@ std::vector<std::string> parser(const std::string &input) {
     bool isBackSlash = false;
 
     for(const char& c : input){
-        // c is backslash and outside quotes then we can take next char as it is
-        if(c=='\\' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
-            isBackSlash=true;
-            continue;
-        }
         if(isBackSlash == true){
             curToken += c;
             isBackSlash = false;
+            continue;
+        }
+        // c is backslash and outside quotes then we can take next char as it is
+        if(c=='\\' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
+            isBackSlash=true;
             continue;
         }
         if(c=='\"' && !isSingleQuote){
