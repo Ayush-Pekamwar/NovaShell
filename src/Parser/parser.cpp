@@ -10,20 +10,20 @@ std::vector<std::string> parser(const std::string &input) {
 
     std::vector<std::string> tokens;
     //state
-    std::string curToken;
+    std::string currentToken;
     bool isSingleQuote = false;
     bool isDoubleQuote = false;
-    bool isBackSlash = false;
+    bool escapeNext = false;
 
     for(const char& c : input){
-        if(isBackSlash == true){
-            curToken += c;
-            isBackSlash = false;
+        if(escapeNext){
+            currentToken += c;
+            escapeNext = false;
             continue;
         }
         // c is backslash and outside quotes then we can take next char as it is
-        if(c=='\\' && !isSingleQuote && !isBackSlash){
-            isBackSlash=true;
+        if(c=='\\' && !isSingleQuote){
+            escapeNext=true;
             continue;
         }
         if(c=='\"' && !isSingleQuote){
@@ -35,18 +35,18 @@ std::vector<std::string> parser(const std::string &input) {
             isSingleQuote ^= 1;
             continue;
         }
-        if(c == ' ' && !isSingleQuote && !isDoubleQuote && !isBackSlash){
-            if(!curToken.empty()) tokens.push_back(curToken);
-            curToken.clear();
+        if(c == ' ' && !isSingleQuote && !isDoubleQuote && !escapeNext){
+            if(!currentToken.empty()) tokens.push_back(currentToken);
+            currentToken.clear();
         }
         else{
-            curToken += c;
+            currentToken += c;
         }
     }
 
-    if(!curToken.empty()){
-        tokens.push_back(curToken);
-        curToken.clear();
+    if(!currentToken.empty()){
+        tokens.push_back(currentToken);
+        currentToken.clear();
     }
 
     return tokens;
