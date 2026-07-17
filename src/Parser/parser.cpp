@@ -51,3 +51,25 @@ std::vector<std::string> parser(const std::string &input) {
 
     return tokens;
 }
+
+Redirection parseRedirection(std::vector<std::string>& tokens){
+    Redirection redirect;
+    redirect.stdoutRedirect = false;
+    redirect.outputFile = "";
+    if(tokens.back() == ">" || tokens.back() == "1>"){
+        tokens.pop_back();
+        return redirect;
+    } 
+
+    for(int i=0; i<tokens.size()-1; i++){
+        if(tokens[i] == ">" || tokens[i] == "1>"){
+            redirect.stdoutRedirect = true;
+            redirect.outputFile = tokens[i+1];
+            // removing i and i+1 th element
+            tokens.erase(tokens.begin()+i, tokens.begin()+i+2);
+            break;
+        }
+    }
+
+    return redirect;
+}

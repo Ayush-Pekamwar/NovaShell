@@ -41,3 +41,75 @@ and it doesnt care about what it returns (2nd arg nullptr)
 ## cd builtin
 - `chdir(newPath.c_str())` already handles both absolute and relative paths, so i just need to check if the path exists or not using file systems lib functions ie. exists() and is_directory()
 - just for `~` alias for HOME directory, we just replace `~` by home directory path extracted from HOME env variable and then pass the new target string path to same function
+
+# Output Redirection (> / 1>)
+
+Goal: Redirect stdout (FD 1) from the terminal to a file.
+
+Steps
+1. Open/Create the file
+
+int fileFd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+* O_WRONLY → open for writing
+* O_CREAT → create if it doesn’t exist
+* O_TRUNC → overwrite existing contents
+* 0644 → rw-r--r--
+
+2. Save current stdout
+
+int savedStdout = dup(STDOUT_FILENO);
+
+3. Redirect stdout to the file
+
+dup2(fileFd, STDOUT_FILENO);
+
+Now all std::cout, printf(), and write(STDOUT_FILENO, ...) output goes to the file.
+
+4. Close the original file descriptor
+
+close(fileFd);
+
+Safe because dup2() already made STDOUT_FILENO refer to the file.
+
+5. Execute the command
+
+dispatch(...);
+
+6. Restore stdout
+
+dup2(savedStdout, STDOUT_FILENO);
+close(savedStdout);
+
+⸻
+
+File Descriptor Flow
+
+Before:
+
+FD 1 ──► Terminal
+
+After open():
+
+FD 1 ──► Terminal
+FD 3 ──► output.txt
+
+After dup2(fileFd, STDOUT_FILENO):
+
+FD 1 ──► output.txt
+FD 3 ──► output.txt
+
+After close(fileFd):
+
+FD 1 ──► output.txt
+
+After restoring:
+
+FD 1 ──► Terminal
+
+Key APIs
+
+* open() → Open/Create file
+* dup() → Duplicate a file descriptor (backup)
+* dup2(oldfd, newfd) → Make newfd refer to the same file as oldfd
+* close() → Close a file descriptor to avoid leaks

@@ -7,8 +7,14 @@
 
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 #include <unordered_set>
 #include <vector>
+
+#include <fcntl.h> // open
+#include <unistd.h> // dup, dup2, close
+#include <sys/stat.h> // file permissions
+
 
 
 // main REPL loop
@@ -17,15 +23,41 @@ void Shell::run() {
         printPrompt();
         std::string input = readInput();
         std::vector<std::string> tokens = parser(input);
-        if (!dispatch(tokens, input)) {
+        Redirection redirect = parseRedirection(tokens);
+        
+        int savedStdOutFD = -1;
+        int currentFileFD = -1;
+        if(redirect.stdoutRedirect == true){
+            // redirect stdout to new file descriptor
+            currentFileFD = open(redirect.outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+            if(currentFileFD < 0){
+                perror("open");
+                continue;
+            }
+
+            savedStdOutFD = dup(STDOUT_FILENO);
+            // redirect stdout to file
+            dup2(currentFileFD, STDOUT_FILENO);
+
+            close(currentFileFD);
+        }
+
+        bool shouldContinue = dispatch(tokens, input);
+
+        // restore stdout
+        if(redirect.stdoutRedirect == true){
+            dup2(savedStdOutFD, STDOUT_FILENO);
+            close(savedStdOutFD);
+        }
+        if (!shouldContinue) {
             return;
         }
     }
 }
 
 // main dispatch
-bool Shell::dispatch(const std::vector<std::string> &tokens,
-                     const std::string &input) {
+bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &input) {
     // returns true-> to keep executing the shell,
     // returns false -> to terminate the shell
 
