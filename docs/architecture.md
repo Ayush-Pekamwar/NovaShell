@@ -7,14 +7,13 @@ main()
   -> Shell::run()
     -> readInput()
     -> tokens = parse(input)
-    -> parseRedirection(tokens)
-
-    -> handles redirection logic
-
+    -> redirect = parseRedirection(tokens)
+    -> setupRedirection(...)
     -> dispatch(tokens, input)
       -> builtin command
       -> external command
       -> command-not-found output
+    -> restoreRedirection(...)
 ```
 
 ## File Layout
@@ -28,6 +27,9 @@ src/
   Parser/
     parser.h
     parser.cpp
+  Redirection/
+    redirection.h
+    redirection.cpp
   Commands/
     builtins.h
     builtins.cpp
@@ -57,7 +59,10 @@ src/
 
 ### `src/Shell/shell.cpp`
 
-- `Shell::run()`: Repeatedly prints the prompt, reads input, tokenizes it, after tokenzing performs redirection from information received from `parseRedirection()` function and dispatches the command. Stops when `dispatch()` returns `false`.
+- `Shell::run()`: Repeatedly prints the prompt, reads input, tokenizes it,
+  parses redirection information, sets up redirected streams, dispatches the
+  command, restores the original streams, and stops when `dispatch()` returns
+  `false`.
 - `Shell::dispatch(tokens, input)`: Decides how to handle a command:
   builtins go to `executeBuiltin()`, executable files go to
   `executeExternalCommand()`, and unknown commands print `not found`.
@@ -69,11 +74,26 @@ src/
 ### `src/Parser/parser.h` / `src/Parser/parser.cpp`
 
 - `parse(input)`: Splits the input line into whitespace-separated tokens.
-Handles single quotes `'` double quotes `"` and backslashes `\` properly 
-- `parseRedirection(tokens)` : takes the tokens and handles all these commands `> , 1> , 2>, 1>> , >> , 2>> `.  to know whether stdout or stderr stream needs to be redirected. This function returns a struct (Redirection) which consists of the following information :
-1. is current input command tokens valid or not, if not we return with a parseError flag set
-2. consists of `StreamRedirect` struct for stdout and stderr which basically tells whether the stream is to be redirected? what is is file path? and do we have to append or overwrite to this file path?
-File path not existing error is handling in run() itself;
+  Handles single quotes `'`, double quotes `"`, and backslashes `\`.
+
+## Redirection Module
+
+### `src/Redirection/redirection.h` / `src/Redirection/redirection.cpp`
+
+- `StreamRedirect`: Stores redirection details for one stream: whether it
+  should redirect, whether it should append, and the target file path.
+- `Redirection`: Stores the full redirection parse result, including a
+  `parseError` flag plus separate stdout and stderr redirect settings.
+- `parseRedirection(tokens)`: Scans tokens for redirection operators:
+  `>`, `1>`, `2>`, `>>`, `1>>`, and `2>>`. It records the target file,
+  detects missing filenames, and removes the redirection operator and filename
+  from `tokens` before command dispatch.
+- `setupRedirection(stream, targetFd)`: Opens the target file, saves the
+  original file descriptor, and redirects `targetFd` to the file using `dup2()`.
+  This logic now lives in the redirection module instead of directly inside
+  `Shell::run()`.
+- `restoreRedirection(savedFd, targetFd)`: Restores a previously redirected
+  stream back to its original file descriptor after the command finishes.
 
 ## Builtin Commands Module
 
