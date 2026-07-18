@@ -113,3 +113,16 @@ Key APIs
 * dup() → Duplicate a file descriptor (backup)
 * dup2(oldfd, newfd) → Make newfd refer to the same file as oldfd
 * close() → Close a file descriptor to avoid leaks
+
+# Roadmap
+1. ✅ Navigation
+2. ✅ Quoting
+3. ✅ Redirection
+4. ⭐⭐ Pipelines
+5. ⭐⭐ Background Jobs
+6. ⭐ History
+7. ⭐ History Persistence
+8. ⭐ Parameter Expansion
+9. Command Completion
+10. Filename Completion
+11. Programmable Completion

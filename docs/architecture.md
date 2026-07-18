@@ -6,7 +6,11 @@ NovaShell is organized as a small set of modules around one main flow:
 main()
   -> Shell::run()
     -> readInput()
-    -> tokenize(input)
+    -> tokens = parse(input)
+    -> parseRedirection(tokens)
+
+    -> handles redirection logic
+
     -> dispatch(tokens, input)
       -> builtin command
       -> external command
@@ -53,8 +57,7 @@ src/
 
 ### `src/Shell/shell.cpp`
 
-- `Shell::run()`: Repeatedly prints the prompt, reads input, tokenizes it,
-  and dispatches the command. Stops when `dispatch()` returns `false`.
+- `Shell::run()`: Repeatedly prints the prompt, reads input, tokenizes it, after tokenzing performs redirection from information received from `parseRedirection()` function and dispatches the command. Stops when `dispatch()` returns `false`.
 - `Shell::dispatch(tokens, input)`: Decides how to handle a command:
   builtins go to `executeBuiltin()`, executable files go to
   `executeExternalCommand()`, and unknown commands print `not found`.
@@ -65,8 +68,12 @@ src/
 
 ### `src/Parser/parser.h` / `src/Parser/parser.cpp`
 
-- `tokenize(input)`: Splits the input line into whitespace-separated tokens.
-  This currently handles simple commands like `echo hello` and `type ls`.
+- `parse(input)`: Splits the input line into whitespace-separated tokens.
+Handles single quotes `'` double quotes `"` and backslashes `\` properly 
+- `parseRedirection(tokens)` : takes the tokens and handles all these commands `> , 1> , 2>, 1>> , >> , 2>> `.  to know whether stdout or stderr stream needs to be redirected. This function returns a struct (Redirection) which consists of the following information :
+1. is current input command tokens valid or not, if not we return with a parseError flag set
+2. consists of `StreamRedirect` struct for stdout and stderr which basically tells whether the stream is to be redirected? what is is file path? and do we have to append or overwrite to this file path?
+File path not existing error is handling in run() itself;
 
 ## Builtin Commands Module
 
