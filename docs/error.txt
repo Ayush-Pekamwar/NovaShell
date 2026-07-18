@@ -1,1 +1,3 @@
-cat: lollool: No such file or directory
+ls: nonexistent: No such file or directory
+cat: nonexistent: No such file or directory
+ls: nonexistent: No such file or directory

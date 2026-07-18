@@ -37,7 +37,7 @@ void Shell::run() {
         else stdoutflags |= O_TRUNC;
 
         int stderrflags = O_WRONLY | O_CREAT;
-        if (redirect.stdoutRedirect.append) stderrflags |= O_APPEND;
+        if (redirect.stderrRedirect.append) stderrflags |= O_APPEND;
         else stderrflags |= O_TRUNC;
 
         
