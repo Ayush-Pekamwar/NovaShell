@@ -25,31 +25,61 @@ void Shell::run() {
         std::vector<std::string> tokens = parser(input);
         Redirection redirect = parseRedirection(tokens);
         
+        // handling parseError from redirection 
+        if(redirect.parseError){
+            std::cerr<<"NovaShell: Syntax Error: expected a filename after "<<tokens.back()<<std::endl;
+            continue;
+        }
+        
         int savedStdOutFD = -1;
-        int currentFileFD = -1;
-        if(redirect.stdoutRedirect == true){
+        int newStdoutFileFD = -1;
+        
+        //handling stdout redirection
+        if (redirect.stdoutRedirect == true) {
             // redirect stdout to new file descriptor
-            currentFileFD = open(redirect.outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-            if(currentFileFD < 0){
+            newStdoutFileFD = open(redirect.stdoutFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            
+            if (newStdoutFileFD < 0) {
                 perror("open");
                 continue;
             }
-
+            
             savedStdOutFD = dup(STDOUT_FILENO);
-            // redirect stdout to file
-            dup2(currentFileFD, STDOUT_FILENO);
-
-            close(currentFileFD);
+            dup2(newStdoutFileFD, STDOUT_FILENO);
+            close(newStdoutFileFD);
         }
+        
+        int savedStdErrFD = -1;
+        int newStdErrFileFD = -1;
+
+        //handling stderr redirection
+        if(redirect.stderrRedirect == true){
+            newStdErrFileFD = open(redirect.stderrFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            
+            if(newStdErrFileFD < 0){
+                perror("open");
+                continue;
+            }
+            
+            savedStdErrFD = dup(STDERR_FILENO);
+            dup2(newStdErrFileFD, STDERR_FILENO);
+            close(newStdErrFileFD);
+        }
+        
 
         bool shouldContinue = dispatch(tokens, input);
 
-        // restore stdout
+        // restore stdout 
         if(redirect.stdoutRedirect == true){
             dup2(savedStdOutFD, STDOUT_FILENO);
             close(savedStdOutFD);
         }
+        // restore stderr
+        if(redirect.stderrRedirect == true){
+            dup2(savedStdErrFD, STDERR_FILENO);
+            close(savedStdErrFD);
+        }
+
         if (!shouldContinue) {
             return;
         }
