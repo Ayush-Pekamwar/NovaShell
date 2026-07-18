@@ -31,13 +31,23 @@ void Shell::run() {
             continue;
         }
         
+        //intilizing flag, on whether we want to erase or append
+        int stdoutflags = O_WRONLY | O_CREAT;
+        if (redirect.stdoutRedirect.append) stdoutflags |= O_APPEND;
+        else stdoutflags |= O_TRUNC;
+
+        int stderrflags = O_WRONLY | O_CREAT;
+        if (redirect.stdoutRedirect.append) stderrflags |= O_APPEND;
+        else stderrflags |= O_TRUNC;
+
+        
         int savedStdOutFD = -1;
         int newStdoutFileFD = -1;
-        
+
         //handling stdout redirection
-        if (redirect.stdoutRedirect == true) {
+        if (redirect.stdoutRedirect.redirect == true) {
             // redirect stdout to new file descriptor
-            newStdoutFileFD = open(redirect.stdoutFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            newStdoutFileFD = open(redirect.stdoutRedirect.file.c_str(), stdoutflags, 0644);
             
             if (newStdoutFileFD < 0) {
                 perror("open");
@@ -53,9 +63,9 @@ void Shell::run() {
         int newStdErrFileFD = -1;
 
         //handling stderr redirection
-        if(redirect.stderrRedirect == true){
-            newStdErrFileFD = open(redirect.stderrFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            
+        if(redirect.stderrRedirect.redirect == true){
+            newStdErrFileFD = open(redirect.stderrRedirect.file.c_str(), stderrflags, 0644);
+
             if(newStdErrFileFD < 0){
                 perror("open");
                 continue;
@@ -70,12 +80,12 @@ void Shell::run() {
         bool shouldContinue = dispatch(tokens, input);
 
         // restore stdout 
-        if(redirect.stdoutRedirect == true){
+        if(redirect.stdoutRedirect.redirect == true){
             dup2(savedStdOutFD, STDOUT_FILENO);
             close(savedStdOutFD);
         }
         // restore stderr
-        if(redirect.stderrRedirect == true){
+        if(redirect.stderrRedirect.redirect == true){
             dup2(savedStdErrFD, STDERR_FILENO);
             close(savedStdErrFD);
         }
