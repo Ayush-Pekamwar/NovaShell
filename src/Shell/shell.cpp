@@ -4,6 +4,7 @@
 #include "../Commands/external.h"
 #include "../Parser/parser.h"
 #include "../Utils/path.h"
+#include "../Redirection/redirection.h"
 
 #include <iostream>
 #include <string>
@@ -31,65 +32,22 @@ void Shell::run() {
             continue;
         }
         
-        //intilizing flag, on whether we want to erase or append
-        int stdoutflags = O_WRONLY | O_CREAT;
-        if (redirect.stdoutRedirect.append) stdoutflags |= O_APPEND;
-        else stdoutflags |= O_TRUNC;
-
-        int stderrflags = O_WRONLY | O_CREAT;
-        if (redirect.stderrRedirect.append) stderrflags |= O_APPEND;
-        else stderrflags |= O_TRUNC;
-
-        
+       // redirection of stdout and stderr streams 
         int savedStdOutFD = -1;
-        int newStdoutFileFD = -1;
-
-        //handling stdout redirection
-        if (redirect.stdoutRedirect.redirect == true) {
-            // redirect stdout to new file descriptor
-            newStdoutFileFD = open(redirect.stdoutRedirect.file.c_str(), stdoutflags, 0644);
-            
-            if (newStdoutFileFD < 0) {
-                perror("open");
-                continue;
-            }
-            
-            savedStdOutFD = dup(STDOUT_FILENO);
-            dup2(newStdoutFileFD, STDOUT_FILENO);
-            close(newStdoutFileFD);
-        }
-        
         int savedStdErrFD = -1;
-        int newStdErrFileFD = -1;
-
-        //handling stderr redirection
-        if(redirect.stderrRedirect.redirect == true){
-            newStdErrFileFD = open(redirect.stderrRedirect.file.c_str(), stderrflags, 0644);
-
-            if(newStdErrFileFD < 0){
-                perror("open");
-                continue;
-            }
-            
-            savedStdErrFD = dup(STDERR_FILENO);
-            dup2(newStdErrFileFD, STDERR_FILENO);
-            close(newStdErrFileFD);
+        if(redirect.stdoutRedirect.redirect){
+            savedStdOutFD = setupRedirection(redirect.stdoutRedirect, STDOUT_FILENO);
         }
-        
+        if(redirect.stderrRedirect.redirect){
+            savedStdErrFD = setupRedirection(redirect.stderrRedirect , STDERR_FILENO);
+        }
 
         bool shouldContinue = dispatch(tokens, input);
 
-        // restore stdout 
-        if(redirect.stdoutRedirect.redirect == true){
-            dup2(savedStdOutFD, STDOUT_FILENO);
-            close(savedStdOutFD);
-        }
-        // restore stderr
-        if(redirect.stderrRedirect.redirect == true){
-            dup2(savedStdErrFD, STDERR_FILENO);
-            close(savedStdErrFD);
-        }
-
+        // restore stdout and stderr back to default
+        restoreRedirection(savedStdOutFD,STDOUT_FILENO);
+        restoreRedirection(savedStdErrFD, STDERR_FILENO);
+        
         if (!shouldContinue) {
             return;
         }
