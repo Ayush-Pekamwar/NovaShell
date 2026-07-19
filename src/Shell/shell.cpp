@@ -23,7 +23,7 @@
 void Shell::run() {
     while (true) {
 
-        updateJobs();
+        // updateJobs();
 
         printPrompt();
         std::string input = readInput();

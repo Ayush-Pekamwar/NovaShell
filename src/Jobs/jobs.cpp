@@ -33,6 +33,7 @@ int findJobWithPid(pid_t pid){
 }
 
 void printJobs(){
+    updateJobs();
     char marker = ' ';
     for(int i=0; i<jobs.size(); i++){
         if(i == jobs.size()-1) marker = '+';
