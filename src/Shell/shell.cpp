@@ -25,6 +25,7 @@ void Shell::run() {
         std::string input = readInput();
         std::vector<std::string> tokens = parser(input);
         Redirection redirect = parseRedirection(tokens);
+        bool isBackgroundJob = parseBackgroundJob(tokens);
         
         // handling parseError from redirection 
         if(redirect.parseError){
@@ -42,7 +43,7 @@ void Shell::run() {
             savedStdErrFD = setupRedirection(redirect.stderrRedirect , STDERR_FILENO);
         }
 
-        bool shouldContinue = dispatch(tokens, input);
+        bool shouldContinue = dispatch(tokens, input, isBackgroundJob);
 
         // restore stdout and stderr back to default
         restoreRedirection(savedStdOutFD,STDOUT_FILENO);
@@ -55,7 +56,7 @@ void Shell::run() {
 }
 
 // main dispatch
-bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &input) {
+bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &input, bool isBackgroundJob) {
     // returns true-> to keep executing the shell,
     // returns false -> to terminate the shell
 
@@ -65,6 +66,7 @@ bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &
 
     // if command is built-in shell command we would pass it to 
     // executeBuiltin() which would further call appropriate function
+    // builtin function are not needed to be a background task
     if (isBuiltin(tokens[0])){
         return executeBuiltin(tokens);
     } 
@@ -73,7 +75,7 @@ bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &
     // findExecutable would return path of executable if it exists in PATH variable if not , then it returns empty string
     std::string executablePath = findExecutable(tokens[0]);
     if (!executablePath.empty()) {
-        return executeExternalCommand(executablePath, tokens);
+        return executeExternalCommand(executablePath, tokens, isBackgroundJob);
     }
 
     // if neither condition satifies we can say command not found

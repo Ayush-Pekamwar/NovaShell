@@ -8,8 +8,7 @@ class Shell {
     void run();
 
   private:
-    bool dispatch(const std::vector<std::string> &tokens,
-                  const std::string &input);
+    bool dispatch(const std::vector<std::string> &tokens, const std::string &input, bool isBackgroundJob);
 
     // Helper functions
     void printPrompt();

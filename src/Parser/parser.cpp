@@ -52,3 +52,11 @@ std::vector<std::string> parser(const std::string &input) {
     return tokens;
 }
 
+bool parseBackgroundJob(std::vector<std::string>& tokens){
+    if(!tokens.empty() && tokens.back() == "&"){
+        tokens.pop_back();
+        return true;
+    }
+
+    return false;
+}
