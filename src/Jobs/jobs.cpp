@@ -8,8 +8,13 @@
 static std::vector<Job> jobs;
 
 void printJobs(){
-    for(auto& job: jobs){
-        std::cout<<'['<<job.id<<"]+  "<<"Running                 "<<job.command<<std::endl;
+    char marker = ' ';
+    for(int i=0; i<jobs.size(); i++){
+        if(i == jobs.size()-1) marker = '+';
+        else if(i == jobs.size()-2) marker = '-';
+        else marker = ' ';
+
+        std::cout<<'['<<jobs[i].id<<"]"<<marker<<"  Running                 "<<jobs[i].command<<std::endl;
     }
 }
 
