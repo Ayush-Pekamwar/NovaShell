@@ -36,6 +36,7 @@ bool executeExternalCommand(const std::string &executablePath,
     else if(pid>0){
         // parent process
         if (!isBackgroundJob) {
+            //wait for child process to finish its job
             waitpid(pid, nullptr, 0);
         }
         else {
@@ -45,7 +46,7 @@ bool executeExternalCommand(const std::string &executablePath,
                 command += token;
                 command += ' ';
             }
-            if(!command.empty())command.pop_back();
+            if(!command.empty()) command.pop_back();
 
             Job newJob = addJob(pid,command);
             cout<<'['<<newJob.id<<"] "<<newJob.pid<<endl;

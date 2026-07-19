@@ -1,5 +1,7 @@
-#include "../Utils/path.h"
 #include "builtins.h"
+#include "../Utils/path.h"
+#include "../Jobs/jobs.h"
+
 
 #include <cstdlib>
 #include <filesystem>
@@ -131,5 +133,6 @@ bool executeCd(const std::string &newPath) {
 }
 
 bool executeJobs(){
+    printJobs();
     return true;
 }

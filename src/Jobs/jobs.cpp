@@ -7,7 +7,7 @@ static std::vector<Job> jobs;
 
 void printJobs(){
     for(auto& job: jobs){
-        std::cout<<job.id<<" "<<job.pid<<" "<<job.command<<std::endl;
+        std::cout<<'['<<job.id<<"]+  "<<"Running                 "<<job.command<<std::endl;
     }
 }
 
@@ -37,4 +37,16 @@ void removeJob(pid_t pid){
     if(idx != -1){
         jobs.erase(jobs.begin()+idx);
     }
+}
+
+void updateJobs(){
+    int status;
+    pid_t pid;
+
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    {
+        std::cout << "[" << pid << "] Done\n";
+        removeJob(pid);
+    }
+
 }

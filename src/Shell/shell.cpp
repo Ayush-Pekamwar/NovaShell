@@ -5,6 +5,7 @@
 #include "../Parser/parser.h"
 #include "../Utils/path.h"
 #include "../Redirection/redirection.h"
+#include "../Jobs/jobs.h"
 
 #include <iostream>
 #include <string>
@@ -21,6 +22,9 @@
 // main REPL loop
 void Shell::run() {
     while (true) {
+
+        updateJobs();
+
         printPrompt();
         std::string input = readInput();
         std::vector<std::string> tokens = parser(input);
