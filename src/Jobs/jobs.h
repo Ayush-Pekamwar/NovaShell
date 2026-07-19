@@ -12,4 +12,5 @@ Job addJob(pid_t pid, std::string& command);
 void removeJob(pid_t pid);
 void printJobs();
 void updateJobs();
-// Job* findJob(...);
+int getJobid(pid_t pid);
+int findJobWithPid(pid_t pid);

@@ -4,8 +4,33 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
 
 static std::vector<Job> jobs;
+
+int getJobid(pid_t pid){
+    int id = -1;
+    for(int i=0; i<jobs.size(); i++){
+        if(jobs[i].pid == pid){
+            id = jobs[i].id;
+            break;
+        }
+    }
+    return id;
+}
+
+int findJobWithPid(pid_t pid){
+    // returns job index in vector of jobs
+    int id = -1;
+    for(int i=0; i<jobs.size(); i++){
+        if(jobs[i].pid == pid){
+            id = i;
+            break;
+        }
+    }
+    return id;
+}
 
 void printJobs(){
     char marker = ' ';
@@ -51,8 +76,10 @@ void updateJobs(){
     pid_t pid;
 
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
-    {
-        std::cout << "[" << pid << "] Done\n";
+    {   
+        int idx = findJobWithPid(pid);
+        if(idx == -1) continue;
+        std::cout << "[" << jobs[idx].id << "]+"<<"Done                    "<<jobs[idx].command<<std::endl;
         removeJob(pid);
     }
 
