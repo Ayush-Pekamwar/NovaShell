@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 static std::vector<Job> jobs;
 
