@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 using namespace std;
 
 // built-in command functions
-std::unordered_set<std::string> shellCommands{"echo", "pwd", "exit", "type","cd"};
+std::unordered_set<std::string> shellCommands{"echo", "pwd", "exit", "type","cd", "jobs"};
 
 bool isBuiltin(const std::string& command){
     if (shellCommands.find(command) != shellCommands.end()){
@@ -51,6 +51,10 @@ bool executeBuiltin(const std::vector<std::string>& tokens){
             executeCd(tokens[1]);
         return true;
     }
+    if(tokens[0] == "jobs"){
+        return executeJobs();
+    }
+
 
     return true;
 }
@@ -123,5 +127,9 @@ bool executeCd(const std::string &newPath) {
         cout << "cd: " << target << ": No such file or directory" << endl;
     }
 
+    return true;
+}
+
+bool executeJobs(){
     return true;
 }

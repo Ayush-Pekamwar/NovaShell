@@ -70,6 +70,7 @@ bool Shell::dispatch(const std::vector<std::string> &tokens, const std::string &
     } 
 
     // checking if current command is executable external command or not
+    // findExecutable would return path of executable if it exists in PATH variable if not , then it returns empty string
     std::string executablePath = findExecutable(tokens[0]);
     if (!executablePath.empty()) {
         return executeExternalCommand(executablePath, tokens);
