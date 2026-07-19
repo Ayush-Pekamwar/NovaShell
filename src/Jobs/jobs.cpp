@@ -80,7 +80,7 @@ void updateJobs(){
     {   
         int idx = findJobWithPid(pid);
         if(idx == -1) continue;
-        std::cout << "[" << jobs[idx].id << "]+"<<"Done                    "<<jobs[idx].command<<std::endl;
+        std::cout << "[" << jobs[idx].id << "]+ "<<"Done                    "<<jobs[idx].command<<std::endl;
         removeJob(pid);
     }
 
