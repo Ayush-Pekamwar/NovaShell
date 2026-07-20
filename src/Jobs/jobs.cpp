@@ -20,7 +20,7 @@ int getJobid(pid_t pid){
     return id;
 }
 
-void printJobs(){
+void printJobs(bool onlyDoneJobs){
     updateJobs();
     char marker = ' ';
     std::string status;
@@ -32,6 +32,7 @@ void printJobs(){
         if(jobs[i].running) status = "Running                 ";
         else status = "Done                    ";
 
+        if(onlyDoneJobs && jobs[i].running) continue;
         std::cout<<'['<<jobs[i].id<<"]"<<marker<<" "<<status<<jobs[i].command<<std::endl;
     }
 

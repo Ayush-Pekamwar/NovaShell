@@ -133,6 +133,6 @@ bool executeCd(const std::string &newPath) {
 }
 
 bool executeJobs(){
-    printJobs();
+    printJobs(0);
     return true;
 }

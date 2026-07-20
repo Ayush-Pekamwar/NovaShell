@@ -22,8 +22,8 @@
 // main REPL loop
 void Shell::run() {
     while (true) {
-
-        // updateJobs();
+        // first arg represent to print only done jobs
+        printJobs(1);
 
         printPrompt();
         std::string input = readInput();

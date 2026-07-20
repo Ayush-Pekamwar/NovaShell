@@ -10,7 +10,7 @@ struct Job {
 
 Job addJob(pid_t pid, std::string& command);
 void removeDoneJobs();
-void printJobs();
+void printJobs(bool onlyDoneJobs);
 void updateJobs();
 int getJobid(pid_t pid);
 int findJobWithPid(pid_t pid);
