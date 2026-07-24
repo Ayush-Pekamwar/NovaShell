@@ -13,4 +13,3 @@ void removeDoneJobs();
 void printJobs(bool onlyDoneJobs);
 void updateJobs();
 int getJobid(pid_t pid);
-int findJobWithPid(pid_t pid);
